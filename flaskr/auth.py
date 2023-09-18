@@ -13,13 +13,32 @@ def register():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
+        verificarpassword = request.form['verificarpassword']
+        email = request.form['email']
         db = get_db()
         error = None
 
         if not username:
             error = 'Username is required.'
+        
+        elif "@" in username:
+            error = "el usuario no debe tener arroba"
+
         elif not password:
             error = 'Password is required.'
+        
+        elif not  email:
+            error = "el email es incorrecto"
+
+        elif "@" not in email:
+            error = "el email debe tener arroba"
+
+        elif not password:
+            error = "contraseña incorrecta"
+
+        elif not verificarpassword != password:
+            error = "la contraseña no es la misma"
+        
 
         if error is None:
             try:
@@ -43,6 +62,8 @@ def login():
         password = request.form['password']
         db = get_db()
         error = None
+
+
         user = db.execute(
             'SELECT * FROM user WHERE username = ?', (username,)
         ).fetchone()
@@ -52,10 +73,13 @@ def login():
         elif not check_password_hash(user['password'], password):
             error = 'Incorrect password.'
 
+        
+
         if error is None:
             session.clear()
             session['user_id'] = user['id']
             return redirect(url_for('index'))
+        
 
         flash(error)
 
